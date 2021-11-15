@@ -140,7 +140,7 @@ RUN pecl channel-update pecl.php.net
 # hadolint ignore=DL3008
 RUN apt-get update \
     && apt-get install -y --no-install-recommends libonig5 libonig-dev \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-configure gd \
     && docker-php-ext-configure bcmath \
     && docker-php-ext-install \
         soap \
