@@ -79,7 +79,6 @@ COPY image-files/ /
 ENV APACHE_REMOTE_IP_HEADER=X-Forwarded-For
 ENV APACHE_REMOTE_IP_TRUSTED_PROXY="10.0.0.0/8 172.16.0.0/12 192.168.0.0/16"
 ENV APACHE_REMOTE_IP_INTERNAL_PROXY="10.0.0.0/8 172.16.0.0/12 192.168.0.0/16"
-RUN sudo semanage port -a -t http_port_t -p tcp 443 80 8080 8443
 # Apache - Avoid warning at startup
 ENV APACHE_SERVER_NAME=__default__
 # Apache - Syslog Log
