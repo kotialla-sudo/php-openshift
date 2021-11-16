@@ -13,7 +13,6 @@ ARG GITLAB_API_HOST
 ARG GITLAB_API_TOKEN
 # System - Application path
 ENV APP_DIR=${APP_DIR}
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # System - Update embded package
 # hadolint ignore=DL3008
 RUN apt-get update \
@@ -151,6 +150,7 @@ RUN apt-get update \
         gd \
         iconv \
         intl \
+        imap \
         mbstring \
         opcache \
         pdo_mysql \
