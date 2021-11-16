@@ -150,7 +150,6 @@ RUN apt-get update \
         gd \
         iconv \
         intl \
-        imap \
         mbstring \
         opcache \
         pdo_mysql \
