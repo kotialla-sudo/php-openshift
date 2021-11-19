@@ -1,5 +1,7 @@
 # Need to hard code the version until this is resolved https://github.com/renovatebot/renovate/issues/5626
 FROM linkbn/php-openshift:7.4
+USER root
+COPY src/ /app/
 ENV DEBIAN_FRONTEND=noninteractive
 ARG USER_ID=2000
 ARG APP_DIR=/app
