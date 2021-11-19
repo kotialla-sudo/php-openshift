@@ -1,5 +1,5 @@
 # Need to hard code the version until this is resolved https://github.com/renovatebot/renovate/issues/5626
-FROM php:7.3-apache
+FROM linkbn/php-openshift:7.4
 ENV DEBIAN_FRONTEND=noninteractive
 ARG USER_ID=2000
 ARG APP_DIR=/app
@@ -53,25 +53,6 @@ RUN mkdir -p ${USER_HOME} \
 ENV PATH=/app:/app/vendor/bin:/root/.composer/vendor/bin:$PATH
 # System - Set terminal type
 ENV TERM=linux
-# System - Install Yii framework bash autocompletion
-ADD https://raw.githubusercontent.com/yiisoft/yii2/master/contrib/completion/bash/yii /etc/bash_completion.d/yii
-RUN chmod a+rx /etc/bash_completion.d/yii
-# Php - configure if php-fpm
-ENV PHPFPM_PM_MAX_CHILDREN=10
-ENV PHPFPM_PM_START_SERVERS=5
-ENV PHPFPM_PM_MIN_SPARE_SERVERS=2
-ENV PHPFPM_PM_MAX_SPARE_SERVERS=5
-# hadolint ignore=DL3008,SC1089,SC2016
-RUN if [ -d /usr/local/etc/php-fpm.d ]; then \
-        sed -i -e 's#\(listen *= *\).*$#\1/var/run/php-fpm/fpm.sock#g' \
-            -e 's#^\(user *= *\).*$#\1${APACHE_RUN_USER}#g' \
-            -e 's#^\(group *= *\).*$#\1${APACHE_RUN_GROUP}#g' \
-            -e 's#^\(pm.max_children *= *\).*$#\1${PHPFPM_PM_MAX_CHILDREN}#g' \
-            -e 's#^\(pm.start_servers *= *\).*$#\1${PHPFPM_PM_START_SERVERS}#g' \
-            -e 's#^\(pm.min_spare_servers *= *\).*$#\1${PHPFPM_PM_MIN_SPARE_SERVERS}#g' \
-            -e 's#^\(pm.max_spare_servers *= *\).*$#\1${PHPFPM_PM_MAX_SPARE_SERVERS}#g' \
-            /usr/local/etc/php-fpm.d/*.conf ; \
-    fi
 # All - Add configuration files
 COPY image-files/ /
 # Apache - configure if apache image
@@ -108,10 +89,6 @@ RUN if which apache2 > /dev/null 2>&1; then \
         && sed -i -e 's/80/8080/g' -e 's/443/8443/g' /etc/apache2/ports.conf; \
     fi
 EXPOSE 8080 8443
-# Php
-RUN mkdir -p /var/run/php-fpm \
-    && chgrp -R 0 /run /etc/service /var/run/php-fpm \
-    && chmod -R g=u /etc/passwd /run /etc/service
 # Cron - use supercronic (https://github.com/aptible/supercronic)
 ENV SUPERCRONIC_VERSION=0.1.12
 ENV SUPERCRONIC_SHA1SUM=048b95b48b708983effb2e5c935a1ef8483d9e3e
@@ -135,7 +112,6 @@ ENV PHP_OPCACHE_VALIDATE_TIMESTAMP=0
 ENV PHP_OPCACHE_REVALIDATE_FREQ=600
 # Php - update pecl protocols
 RUN pecl channel-update pecl.php.net
-# Php - Install extensions required for Yii 2.0 Framework
 # hadolint ignore=DL3008
 RUN apt-get update \
     && apt-get install -y --no-install-recommends libonig5 libonig-dev \
@@ -162,15 +138,7 @@ RUN apt-get update \
     && if [ "${PHP_VERSION%%.*}" -lt 7 ]; then \
         printf "\n" | pecl install imagick; \
         docker-php-ext-enable imagick; \
-    fi \
-    # Php - Mongodb with SSL
-    && apt-get update \
-    && apt-get install -y --no-install-recommends libssl1.1 libssl-dev \
-    && pecl uninstall mongodb \
-    && pecl install mongodb \
-    && apt-get remove -y libssl-dev \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    fi
 # Composer - Install composer
 ENV COMPOSER_ALLOW_SUPERUSER=1
 # hadolint ignore=DL3008
